@@ -249,6 +249,18 @@ void UpdatePlayer(void)
 {
 	int nNumPlayer = GetNumPad();	// プレイヤーの人数
 
+	if (*GetMode() == MODE_RESULT)
+	{
+		for (int nCnt = 0; nCnt < nNumPlayer; nCnt++)
+		{
+			g_player[nCnt].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			g_player[nCnt].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			// モーションの再生
+			MotionPlayer(nCnt);
+		}
+		return;
+	}
+
 	for (int nCnt = 0; nCnt < nNumPlayer; nCnt++)
 	{
 		if (g_player[nCnt].bUse)
@@ -997,4 +1009,12 @@ D3DXVECTOR3 *GetPlayerMove(int nNum)
 float *GetPlayerRadius(int nNum)
 {
 	return&g_player[nNum].fRadius;
+}
+
+//=============================================================================
+// プレイヤーの生死状態の取得処理
+//=============================================================================
+bool GetPlayerUse(int nNum)
+{
+	return g_player[nNum].bUse;
 }
