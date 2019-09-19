@@ -271,7 +271,70 @@ void CollisionField(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size, i
 {
 	for (int nCntField = 0; nCntField < 4; nCntField++)
 	{
-		if (g_aField[nCntField].nIdxPlayer == nCol) { continue; }// プレイヤーと同じ色の場合はスキップする
+		if (g_aField[nCntField].nIdxPlayer == nCol) // プレイヤーと同じ色の場合はスキップする
+		{
+			bool bA = false;
+
+			if (g_aField[1].nIdxPlayer == g_aField[2].nIdxPlayer &&
+				(nCntField == 1 || nCntField == 2))
+			{
+				bA = true;
+			}
+			else if (g_aField[0].nIdxPlayer == g_aField[3].nIdxPlayer &&
+				(nCntField == 0 || nCntField == 3))
+			{
+				bA = true;
+			}
+
+			if (!bA)
+				continue;
+
+			bool bUp = false;
+
+			if (pPos->x + size.x > -10.0f&&
+				pPos->x - size.x < +10.0f)
+			{// 上下
+				if (pPos->z - size.z <= 10.0f&&
+					pPosOld->z - size.z >= 10.0f)
+				{// 上からぶつかった場合
+					bUp = true;
+				}
+				else if (pPos->z + size.z >= -10.0f&&
+					pPosOld->z + size.z <= -10.0f)
+				{// 下からぶつかった場合
+					bUp = true;
+				}
+			}
+			if (pPos->z + size.x > -10.0f&&
+				pPos->z - size.x < +10.0f)
+			{// 左右
+				if (pPos->x - size.x <= +10.0f&&
+					pPosOld->x - size.x >= +10.0f)
+				{// 右からぶつかった場合
+					bUp = true;
+				}
+				else if (pPos->x + size.x >= -10.0f&&
+					pPosOld->x + size.x <= -10.0f)
+				{// 左からぶつかった場合
+					bUp = true;
+				}
+			}
+
+			if(bUp)
+			for (int nCnt = 0; nCnt < 4; nCnt++)
+			{
+				if (nCol == g_aField[nCnt].nIdxPlayer && 
+					((pPos->x < 0.0f) ? (pPos->z < 0.0f) ? nCnt == nCntField : nCnt != nCntField : (pPos->z < 0.0f) ? nCnt == nCntField : nCnt != nCntField))
+				{
+					D3DXVec3Normalize(pPos, &g_aField[nCnt].pos);
+					*pPos *= 71;
+
+					break;
+				}
+			}
+
+			continue;
+		}
 		
 		if (pPos->x + size.x > g_aField[nCntField].pos.x - 250.0f&&
 			pPos->x - size.x < g_aField[nCntField].pos.x + 250.0f)

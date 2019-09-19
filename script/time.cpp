@@ -221,3 +221,11 @@ void AddTime(int nValue)
 		//PlaySound(SOUND_LABEL_SE_COUNT);
 	}
 }
+
+//=============================================================================
+// タイムの使用状況取得
+//=============================================================================
+bool GetTimeUse(int nNumber)
+{
+	return g_anTime[nNumber].bUse;
+}

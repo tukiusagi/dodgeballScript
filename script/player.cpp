@@ -19,6 +19,7 @@
 #include "model.h"
 #include "sound.h"
 #include "shadow.h"
+#include "time.h"
 #include "ball.h"
 
 //=============================================================================
@@ -273,8 +274,11 @@ void UpdatePlayer(void)
 
 			if (g_player[nCnt].motionType != MOTIONTYPE_ACTION&&g_player[nCnt].motionType != MOTIONTYPE_CATCH)
 			{
-				// コントロール
-				ControlPlayer(nCnt);
+				if (!GetTimeUse(0))
+				{// カウントダウンが終了した場合
+					// コントロール
+					ControlPlayer(nCnt);
+				}
 			}
 
 			// 角度が一定値を超えた場合の数値制限
@@ -434,6 +438,7 @@ void ControlPlayer(int nCnt)
 {
 	int nStickH, nStickV;			// アナログスティック左の入力情報
 	CAMERA *pCamera = GetCamera(0);	// カメラ情報の取得
+	BALL *pBall = GetBall();
 
 	// アナログスティック左の取得
 	GetJoypadStickLeft(nCnt, &nStickH, &nStickV);
@@ -448,16 +453,34 @@ void ControlPlayer(int nCnt)
 		// 向き
 		g_player[nCnt].rotDest.y = D3DX_PI * -(float)atan2(nStickH, -nStickV) / D3DX_PI + pCamera->rot.y;
 
-		if (g_player[nCnt].motionType != MOTIONTYPE_RUNNING&&g_player[nCnt].motionType != MOTIONTYPE_JUMP)
+		if (g_player[nCnt].motionType != MOTIONTYPE_RUNNING &&
+			g_player[nCnt].motionType != MOTIONTYPE_RUNNING_BALL && g_player[nCnt].motionType != MOTIONTYPE_JUMP)
 		{
-			// モーションの切り替え
-			MotionChangePlayer(MOTIONTYPE_RUNNING, nCnt);
+			if (pBall->nParent == nCnt && pBall->bHold)
+			{
+				// モーションの切り替え
+				MotionChangePlayer(MOTIONTYPE_RUNNING_BALL, nCnt);
+			}
+			else
+			{
+				// モーションの切り替え
+				MotionChangePlayer(MOTIONTYPE_RUNNING, nCnt);
+			}
+
 		}
 	}
-	else if (g_player[nCnt].motionType == MOTIONTYPE_RUNNING)
+	else if (g_player[nCnt].motionType == MOTIONTYPE_RUNNING || g_player[nCnt].motionType == MOTIONTYPE_RUNNING_BALL)
 	{// 移動をやめた場合
-		// モーションの切り替え
-		MotionChangePlayer(MOTIONTYPE_NEUTRAL, nCnt);
+		if (pBall->nParent == nCnt && pBall->bHold)
+		{
+			// モーションの切り替え
+			MotionChangePlayer(MOTIONTYPE_NEUTRAL_BALL, nCnt);
+		}
+		else
+		{
+			// モーションの切り替え
+			MotionChangePlayer(MOTIONTYPE_NEUTRAL, nCnt);
+		}
 	}
 
 	{// 多分あとで消す
@@ -480,7 +503,6 @@ void ControlPlayer(int nCnt)
 	//ボール投げる＆つかむ
 	float fDistX, fDistZ;
 	float fDistans = 100000;
-	BALL *pBall = GetBall();
 	fDistX = pBall->pos.x - g_player[nCnt].pos.x;
 	fDistZ = pBall->pos.z - g_player[nCnt].pos.z;
 	fDistans = (float)sqrt(fDistX * fDistX + fDistZ * fDistZ);
@@ -750,7 +772,7 @@ void CollisionPlayer(int nCnt)
 	}
 
 	// 陣地の衝突判定(自分の色にのみ入れる)
-	CollisionField(&g_player[nCnt].pos, &g_player[nCnt].posOld, D3DXVECTOR3(50.0f,0.0f,50.0f), nCnt);
+	CollisionField(&g_player[nCnt].pos, &g_player[nCnt].posOld, D3DXVECTOR3(50.0f, 0.0f, 50.0f), nCnt);
 
 	// 当たり判定
 	if (*pMode == MODE_GAME)
@@ -763,7 +785,7 @@ void CollisionPlayer(int nCnt)
 			{
 				if (pBall->state == BALLSTATE_THROW)
 				{
-					ChangeFieldColor(0, nCnt);
+					ChangeFieldColor(pBall->nParent, nCnt);
 					g_player[nCnt].bUse = false;
 					DeleteShadow(g_player[nCnt].nIdxShadow);
 				}

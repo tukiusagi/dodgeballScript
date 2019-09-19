@@ -33,5 +33,6 @@ void UpdateTime(void);
 void DrawTime(void);
 
 void AddTime(int nValue);
+bool GetTimeUse(int nNumber);
 
 #endif
