@@ -32,7 +32,7 @@
 #define TEXTUREFILE3		"data/TEXTURE/green.jpg"			// 読み込むテクスチャ
 #define MAX_TEXTURE			(5)									// テクスチャ数
 #define MAX_USETEXTURE		(4)									// 使用テクスチャ数
-#define MAX_MODEL			(15)									// モデルの数
+#define MAX_MODEL			(15)								// モデルの数
 #define MAX_KEY				(8)									// モデルの数
 #define PLAYER_MOVE			(0.4f)								// プレイヤーの移動量
 #define PLAYER_REST			(1475)								// プレイヤーの移動範囲
@@ -717,6 +717,13 @@ void MotionPlayer(int nCnt)
 		{
 			pInfo->nNumKey++;
 			pInfo->nCntFrame = 0;
+
+			if (g_player[nCnt].bHold && pInfo->nNumKey >= 2)
+			{// ボールをキャッチした場合
+				// モーションの切り替え
+				MotionChangePlayer(MOTIONTYPE_NEUTRAL_BALL, nCnt);
+				return;
+			}
 		}
 
 		if (!pInfo->bLoop && pInfo->nNumKey + 1 == pInfo->nMaxKey)
