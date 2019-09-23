@@ -25,6 +25,7 @@
 #include "time.h"
 #include "ball.h"
 #include "field.h"
+#include "particle.h"
 
 //=============================================================================
 // マクロ定義
@@ -126,6 +127,9 @@ void InitGame(HWND hWnd)
 	// エフェクトの初期化処理
 	InitEffect();
 
+	//パーティクル初期化
+	InitParticle();
+
 	// フィールドの初期化
 	InitField();
 
@@ -163,6 +167,9 @@ void UninitGame()
 
 	// エフェクトの終了処理
 	UninitEffect();
+
+	//パーティクル終了
+	UninitParticle();
 
 	// フィールドの終了
 	UninitField();
@@ -209,6 +216,9 @@ void UpdateGame()
 
 		// エフェクトの更新処理
 		UpdateEffect();
+
+		//パーティクル更新
+		UpdateParticle();
 
 		// フィールドの更新
 		UpdateField();
@@ -340,6 +350,9 @@ void DrawGame()
 	
 	// メッシュウォールの描画処理
 	//DrawMeshWall();
+
+	//パーティクル描画
+	DrawParticle();
 
 	// エフェクトの描画処理
 	DrawEffect();

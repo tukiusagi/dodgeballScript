@@ -12,6 +12,7 @@
 #include "meshwall.h"
 #include "meshfield.h"
 #include "sound.h"
+#include "effect.h"
 
 //=============================================================================
 // マクロ定義
@@ -21,6 +22,10 @@
 #define BALL_SHADOW	(5.0f)			//影の大きさ
 #define BALL_SPEED	(30.0f)			//ボールを投げる速さ
 #define BALL_INERTIA (0.03f)		//ボールの慣性
+#define BALL_EFFECTSIZE	(50)		//エフェクトサイズ
+#define BALL_EFFECTLIFE	(20)		//エフェクト寿命
+
+#define MAX_PLAYER	(4)				//プレイヤー数
 
 //=============================================================================
 // プロトタイプ宣言
@@ -38,6 +43,13 @@ LPDIRECT3DTEXTURE9	g_pTextureBall = NULL;				//テクスチャへのポインタ
 
 BALL				g_aBall;					//ボールの情報
 
+D3DXCOLOR g_aColor[MAX_PLAYER] = {	//エフェクトの色
+	D3DXCOLOR(1.0f,0.0f,0.0f,1.0f),	// 1P
+	D3DXCOLOR(0.0f,0.0f,1.0f,1.0f),	// 2P
+	D3DXCOLOR(1.0f,1.0f,0.0f,1.0f),	// 3P
+	D3DXCOLOR(0.0f,1.0f,0.0f,1.0f)	// 4P
+};
+
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -46,7 +58,7 @@ void InitBall(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	// 位置・向きの初期設定
-	g_aBall.pos = D3DXVECTOR3(-100.0f, 50.0f, 0.0f);
+	g_aBall.pos = D3DXVECTOR3(150.0f, 50.0f, 0.0f);
 	g_aBall.posOld = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	g_aBall.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	g_aBall.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -55,7 +67,7 @@ void InitBall(void)
 	g_aBall.state = BALLSTATE_NORMAL;
 
 	//影の作成
-	g_aBall.nIdxShadow = SetShadow(D3DXVECTOR3(g_aBall.pos.x, g_aBall.pos.y, g_aBall.pos.z),
+	g_aBall.nIdxShadow = SetShadow(D3DXVECTOR3(g_aBall.pos.x, g_aBall.pos.y - 40, g_aBall.pos.z),
 		D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(100.0f, 0.0f, 100.0f));
 
 	// Xファイルの読み込み
@@ -109,6 +121,8 @@ void UpdateBall(void)
 {
 	if (g_aBall.state == BALLSTATE_THROW)
 	{
+		SetEffect(g_aBall.pos, g_aBall.move, g_aColor[g_aBall.nParent], BALL_EFFECTSIZE, BALL_EFFECTLIFE);
+
 		if (g_aBall.move.x <= ATTACK_SPEED && g_aBall.move.z <= ATTACK_SPEED && 
 			g_aBall.move.x >= -ATTACK_SPEED && g_aBall.move.z >= -ATTACK_SPEED)
 		{
@@ -129,7 +143,7 @@ void UpdateBall(void)
 	}
 
 	//影の位置を設定
-	SetPositionShadow(g_aBall.nIdxShadow, g_aBall.pos);
+	SetPositionShadow(g_aBall.nIdxShadow, D3DXVECTOR3(g_aBall.pos.x, g_aBall.pos.y - 40, g_aBall.pos.z));
 
 	//重力
 	//g_aBall.move.y -= 0.08f;
@@ -252,20 +266,28 @@ void MoveLimitBall(D3DXVECTOR3 *pos, float fRadius)
 	if (pos->x > MESHFIELD_SIZE * 2 - fRadius)
 	{
 		pos->x = MESHFIELD_SIZE * 2 - fRadius;
+		g_aBall.state = BALLSTATE_NORMAL;
+
 	}
 	if (pos->x < -MESHFIELD_SIZE * 2 + fRadius)
 	{
 		pos->x = -MESHFIELD_SIZE * 2 + fRadius;
+		g_aBall.state = BALLSTATE_NORMAL;
+
 	}
 
 	//奥手前
 	if (pos->z > MESHFIELD_SIZE * 2 - fRadius)
 	{
 		pos->z = MESHFIELD_SIZE * 2 - fRadius;
+		g_aBall.state = BALLSTATE_NORMAL;
+
 	}
 	if (pos->z < -MESHFIELD_SIZE * 2 + fRadius)
 	{
 		pos->z = -MESHFIELD_SIZE * 2 + fRadius;
+		g_aBall.state = BALLSTATE_NORMAL;
+
 	}
 }
 

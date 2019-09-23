@@ -9,7 +9,6 @@
 // インクルードファイル
 //=============================================================================
 #include "effect.h"
-#include "player.h"
 
 //=============================================================================
 // マクロ定義
@@ -106,7 +105,7 @@ void UpdateEffect(void)
 		if (g_aEffect[nCntEffect].bUse == true)// エフェクトが使用されているか
 		{
 			// 位置の更新
-			g_aEffect[nCntEffect].pos += g_aEffect[nCntEffect].move;
+			//g_aEffect[nCntEffect].pos += g_aEffect[nCntEffect].move;
 
 			// 頂点座標の更新
 			pVtx[0].pos = D3DXVECTOR3(-g_aEffect[nCntEffect].fRadius, +g_aEffect[nCntEffect].fRadius, 0.0f);

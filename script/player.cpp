@@ -21,6 +21,7 @@
 #include "shadow.h"
 #include "time.h"
 #include "ball.h"
+#include "particle.h"
 
 //=============================================================================
 // マクロ定義
@@ -792,6 +793,16 @@ void CollisionPlayer(int nCnt)
 			{
 				if (pBall->state == BALLSTATE_THROW)
 				{
+					//ヒットエフェクト
+					float fAngle = 0;
+					float fSpeed = 10;
+					for (int nCntParticle = 0; nCntParticle < 20; nCntParticle++)
+					{
+						fAngle = float(rand() % 314) / 100.0f - float(rand() % 314) / 100.0f;	//0～3.14を出す
+						D3DXVECTOR3 move = D3DXVECTOR3(sinf(fAngle)*fSpeed, cosf(fAngle)*fSpeed, 0.0f);
+						SetParticle(D3DXVECTOR3(g_player[nCnt].pos.x, g_player[nCnt].aModel[0].pos.y + 20, g_player[nCnt].pos.z), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), move, 50, 30);
+					}
+
 					ChangeFieldColor(pBall->nParent, nCnt);
 					g_player[nCnt].bUse = false;
 					DeleteShadow(g_player[nCnt].nIdxShadow);
